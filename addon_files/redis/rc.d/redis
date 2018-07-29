@@ -1,0 +1,56 @@
+#!/bin/sh
+
+CONF_DIR=/usr/local/etc/config
+ADDON_DIR=/usr/local/addons/redis
+
+BIN_DIR=/usr/local/bin
+CONF_DIR=/usr/local/etc/config
+
+Stop () {
+    echo -n "Stopping redis: "
+    killall redis-server && echo "OK"
+}
+
+Start () {
+    echo -n "Starting redis: "
+    $ADDON_DIR/bin/redis-server $ADDON_DIR/etc/redis.conf && echo "OK"
+}
+
+case "$1" in
+
+  stop)
+    Stop
+  ;;
+
+  start)
+    Start
+  ;;
+
+  restart)
+    Stop
+    sleep 3
+    Start
+  ;;
+
+  info)
+    echo "Info: <center><a href=\"https://redis.io/\" target=\"_blank\"><img width=\"240\" src="/addons/redis/redis.png"></a></center>"
+    echo "Name: redis"
+    echo "Version: 3.2.11+0"
+    echo "Update: /addons/redis/update_check.cgi"
+    echo "Operations: uninstall"
+  ;;
+
+  uninstall)
+     /usr/bin/killall redis-server
+     rm $CONF_DIR/rc.d/redis
+     rm $BIN_DIR/redis*
+     rm $CONF_DIR/addons/www/redis
+     rm -r $ADDON_DIR
+  ;;
+
+  *)
+    echo "Usage: redis {start|stop|restart|info|uninstall}" >&2
+    exit 1
+  ;;
+
+esac

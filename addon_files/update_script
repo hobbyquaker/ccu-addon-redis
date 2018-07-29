@@ -1,0 +1,36 @@
+#!/bin/sh
+
+ADDONS_DIR=/usr/local/addons
+REDIS_DIR=$ADDONS_DIR/redis
+
+
+BIN_DIR=/usr/local/bin
+LIB_DIR=/usr/local/lib
+CONF_DIR=/usr/local/etc/config
+
+mount | grep /usr/local 2>&1 >/dev/null
+if [ $? -eq 1 ]; then
+  mount /usr/local
+fi
+
+mkdir -p $ADDONS_DIR && chmod 755 $ADDONS_DIR
+mkdir -p $BIN_DIR && chmod 755 $BIN_DIR
+mkdir -p $LIB_DIR && chmod 755 $LIB_DIR
+
+if [ -f $CONF_DIR/rc.d/redis ]; then
+    $CONF_DIR/rc.d/redis stop
+fi
+
+cp -af redis $ADDONS_DIR/
+
+if [ ! -f $REDIS_DIR/etc/local.conf ]; then
+  touch $REDIS_DIR/etc/local.conf
+fi
+
+ln -sf $REDIS_DIR/bin/* /usr/local/bin/
+ln -sf $REDIS_DIR/rc.d/redis $CONF_DIR/rc.d/redis
+ln -sf $REDIS_DIR/www $CONF_DIR/addons/www/redis
+
+sync
+
+exit 0
